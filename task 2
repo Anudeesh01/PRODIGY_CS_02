@@ -1,0 +1,51 @@
+from PIL import Image
+
+def scramble_pixels(img, key):
+    width, height = img.size
+    key_digits = [int(char) for char in str(key)]
+    key_len = len(key_digits)
+    pixels = img.load()
+    for y in range(height):
+        for x in range(width):
+            r, g, b = pixels[x, y]
+            r = (r + key_digits[(x * y) % key_len]) % 256
+            g = (g + key_digits[(x * y + 1) % key_len]) % 256
+            b = (b + key_digits[(x * y + 2) % key_len]) % 256
+            pixels[x, y] = (r, g, b)
+
+def unscramble_pixels(img, key):
+    width, height = img.size
+    key_digits = [int(char) for char in str(key)]
+    key_len = len(key_digits)
+    pixels = img.load()
+    for y in range(height):
+        for x in range(width):
+            r, g, b = pixels[x, y]
+            r = (r - key_digits[(x * y) % key_len]) % 256
+            g = (g - key_digits[(x * y + 1) % key_len]) % 256
+            b = (b - key_digits[(x * y + 2) % key_len]) % 256
+            pixels[x, y] = (r, g, b)
+
+def encrypt_image(image_path, key):
+    img = Image.open(image_path)
+    scramble_pixels(img, key)
+    img.save("encrypted_image.png")
+    print("Image encrypted successfully!")
+
+def decrypt_image(image_path, key):
+    img = Image.open(image_path)
+    unscramble_pixels(img, key)
+    img.save("decrypted_image.png")
+    print("Image decrypted successfully!")
+
+# Ask user for choice and file path
+choice = input("Enter 'e' to encrypt or 'd' to decrypt: ").lower()
+file_path = input("Enter the file path: ")
+key = input("Enter the encryption/decryption key: ")
+
+if choice == 'e':
+    encrypt_image(file_path, key)
+elif choice == 'd':
+    decrypt_image(file_path, key)
+else:
+    print("Invalid choice!")
